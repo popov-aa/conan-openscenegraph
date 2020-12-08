@@ -4,7 +4,7 @@ import os
 
 class OpenscenegraphConan(ConanFile):
     name = "openscenegraph"
-    version = "3.6.5"
+    version = "3.4.1"
     description = "OpenSceneGraph is an open source high performance 3D graphics toolkit"
     topics = ("conan", "openscenegraph", "graphics")
     url = "https://github.com/bincrafters/conan-openscenegraph"
@@ -36,14 +36,15 @@ class OpenscenegraphConan(ConanFile):
     requires = (
         "zlib/1.2.11",
         "freetype/2.10.4",
-        "libjpeg/9d",
+        "libjpeg-turbo/1.5.2@bincrafters/stable",
+        #"libjpeg/9",
         "libxml2/2.9.10",
         "libcurl/7.67.0",
         "libpng/1.6.37",
         "libtiff/4.0.9",
-        "sdl2/2.0.12@bincrafters/stable",
-        "jasper/2.0.19",
-        "cairo/1.17.2@bincrafters/stable",
+        #"sdl2/2.0.12@bincrafters/stable",
+        "jasper/2.0.16",
+        #"cairo/1.17.2@bincrafters/stable",
         # "openblas/0.3.10", Removed until openblas is in conan center
     )
 
@@ -72,11 +73,10 @@ class OpenscenegraphConan(ConanFile):
             del self.options.fPIC
 
     def source(self):
-        prefix = "OpenSceneGraph"
-        sha256 = "aea196550f02974d6d09291c5d83b51ca6a03b3767e234a8c0e21322927d1e12"
-        tools.get("{0}/archive/{1}-{2}.tar.gz".format(self.homepage, prefix, self.version), sha256=sha256)
-        extracted_dir = "{}-{}-".format(prefix, prefix) + self.version
-        os.rename(extracted_dir, self._source_subfolder)
+        self.run("git clone /home/popov-aa/repos/OpenSceneGraph")
+        #self.run("git clone https://github.com/cascaians/OpenSceneGraph.git")
+        os.rename("OpenSceneGraph", self._source_subfolder)
+        self.run("git checkout --detach e24257ab1d456c74193b21eeacddf0098f5318b0", cwd=self._source_subfolder)
 
     def _configure_cmake(self):
         if not self._cmake:
@@ -103,6 +103,7 @@ class OpenscenegraphConan(ConanFile):
         cmake.install()
 
     def package_info(self):
+        self.cpp_info.libdirs = ["lib64"]
         self.cpp_info.libs = tools.collect_libs(self)
         if self.settings.os == "Linux":
             self.cpp_info.system_libs.append("rt")
